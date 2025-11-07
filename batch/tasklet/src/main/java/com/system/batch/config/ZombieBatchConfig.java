@@ -1,5 +1,6 @@
-package com.system.batch.tasklet.tasklet;
+package com.system.batch.config;
 
+import com.system.batch.tasklet.ZombieProcessCleanupTasklet;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.job.builder.JobBuilder;
@@ -11,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.PlatformTransactionManager;
 
 /*
-* tasklet -> batch step
-* */
+ * tasklet -> batch step
+ * */
 @Configuration
 public class ZombieBatchConfig {
     private final JobRepository jobRepository;
@@ -24,21 +25,21 @@ public class ZombieBatchConfig {
     }
 
     /*
-    * tasklet class
-    * */
+     * tasklet class
+     * */
     @Bean
     public Tasklet zombieProcessCleanupTasklet() {
         return new ZombieProcessCleanupTasklet();
     }
 
     /*
-    * tasklet -> step
-    * */
+     * tasklet -> step
+     * */
     @Bean
     public Step zombieProcessCleanupStep() {
         /*
-        * Step building by tasklet (*transactionManager)
-        * */
+         * Step building by tasklet (*transactionManager)
+         * */
         return new StepBuilder("zombieCleanupStep", jobRepository)
                 .tasklet(zombieProcessCleanupTasklet(), transactionManager)
                 .build();

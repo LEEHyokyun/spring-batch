@@ -1,4 +1,4 @@
-package com.system.batch.tasklet.tasklet;
+package com.system.batch.tasklet;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.StepContribution;
@@ -7,8 +7,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 
 /*
-* tasklet
-* */
+ * tasklet
+ * */
 @Slf4j
 public class ZombieProcessCleanupTasklet implements Tasklet {
     private final int processesToKill = 10;

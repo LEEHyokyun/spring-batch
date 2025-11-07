@@ -1,1 +1,5 @@
 rootProject.name = 'kill-batch-system'
+
+include 'batch'
+include 'batch:init'
+include 'batch:tasklet'
