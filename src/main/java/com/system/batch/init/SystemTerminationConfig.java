@@ -1,4 +1,4 @@
-package com.system.batch.config;
+package com.system.batch.init;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
