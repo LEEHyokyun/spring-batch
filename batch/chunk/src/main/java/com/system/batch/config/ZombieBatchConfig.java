@@ -31,7 +31,7 @@ public class ZombieBatchConfig {
     @Bean
     public Step processStep() {
         /*
-         * Step building by tasklet (*transactionManager)
+         * Step building by chunk (*transactionManager)
          * */
 //        return new StepBuilder("processStep", jobRepository)
 //                .<T1, T2>chunk(10, transactionManager)
