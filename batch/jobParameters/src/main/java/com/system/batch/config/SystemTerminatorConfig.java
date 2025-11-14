@@ -1,5 +1,6 @@
 package com.system.batch.config;
 
+import com.system.batch.jobParameters.SystemInfiltrationParameters;
 import com.system.batch.util.QuestDifficulty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -54,23 +55,49 @@ public class SystemTerminatorConfig {
 //        };
 //    }
 
+//    @Bean
+//    @StepScope
+//    public Tasklet terminatorTasklet(
+//            //lombok value - 불변 클래스 생성
+//            //beas.factory - SpEL(Spring Expression Language(CLI)를 통해 프로퍼티/jobparameter 값 주입 시
+//            @Value("#{jobParameters['questDifficulty']}")QuestDifficulty questDifficulty
+//            ) {
+//        return (contribution, chunkContext) -> {
+//            log.info("Processing terminator tasklet");
+//            log.info("Terminator tasklet quest difficulty : {}", questDifficulty);
+//
+//            log.info("reward is based on quest difficulty.");
+//            int reward = switch (questDifficulty){
+//                case EASY -> 1;
+//                case NORMAL -> 2;
+//                case HARD -> 3;
+//                case EXTREME -> 4;
+//            };
+//            log.info("finially reward is : {}", reward);
+//
+//            log.info("Terminator tasklet finished");
+//            return RepeatStatus.FINISHED;
+//        };
+//    }
+
     @Bean
     @StepScope
     public Tasklet terminatorTasklet(
-            //lombok value - 불변 클래스 생성
-            //beas.factory - SpEL(Spring Expression Language(CLI)를 통해 프로퍼티/jobparameter 값 주입 시
-            @Value("#{jobParameters['questDifficulty']}")QuestDifficulty questDifficulty
-            ) {
+            SystemInfiltrationParameters systemInfiltrationParameters
+    ) {
         return (contribution, chunkContext) -> {
             log.info("Processing terminator tasklet");
-            log.info("Terminator tasklet quest difficulty : {}", questDifficulty);
+            log.info("systemInfiltrationParamters is injected : {}", systemInfiltrationParameters.getMissionName());
+            log.info("systemInfiltrationParamters is injected : {}", systemInfiltrationParameters.getSecurityLevel());
+            log.info("systemInfiltrationParamters is injected : {}", systemInfiltrationParameters.getOperationCommander());
 
-            log.info("reward is based on quest difficulty.");
-            int reward = switch (questDifficulty){
-                case EASY -> 1;
-                case NORMAL -> 2;
-                case HARD -> 3;
-                case EXTREME -> 4;
+            log.info("reward is based operation Commander.");
+            int reward = switch (systemInfiltrationParameters.getSecurityLevel()){
+                case 1 -> 1;
+                case 2 -> 2;
+                case 3 -> 3;
+                case 4 -> 4;
+                default -> 1;
             };
             log.info("finially reward is : {}", reward);
 
