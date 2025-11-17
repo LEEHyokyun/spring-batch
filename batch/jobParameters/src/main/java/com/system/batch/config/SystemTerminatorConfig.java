@@ -1,6 +1,7 @@
 package com.system.batch.config;
 
-import com.system.batch.jobParameters.SystemInfiltrationParameters;
+//import com.system.batch.jobParameters.SystemInfiltrationParameters;
+import com.system.batch.tasklet.SystemDestructionTasklet;
 import com.system.batch.util.QuestDifficulty;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
@@ -35,7 +36,7 @@ public class SystemTerminatorConfig {
     @Bean
     public Step terminationStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, Tasklet terminatorTasklet) {
         return new StepBuilder("terminationStep", jobRepository)
-                .tasklet(terminatorTasklet, transactionManager)
+                .tasklet(new SystemDestructionTasklet(), transactionManager)
                 .build();
     }
 
@@ -117,24 +118,24 @@ public class SystemTerminatorConfig {
 //        };
 //    }
 
-    @Bean
-    @StepScope
-    public Tasklet terminatorTasklet(
-            @Value("#{jobParameters['infiltrationTargets']}") String infiltrationTargets
-    ) {
-        return (contribution, chunkContext) -> {
-
-            //String[] targets = infiltrationTargets.split(",");
-            String target1 = infiltrationTargets;
-            //String target2 = targets[1];
-
-            log.info("Processing terminator tasklet");
-            log.info("systemInfiltrationParamters is approaching first target : {}", target1);
-            //log.info("systemInfiltrationParamters is approaching second target : {}", target2);
-
-            log.info("Terminator tasklet finished");
-            return RepeatStatus.FINISHED;
-        };
-    }
+//    @Bean
+//    @StepScope
+//    public Tasklet terminatorTasklet(
+//            @Value("#{jobParameters['infiltrationTargets']}") String infiltrationTargets
+//    ) {
+//        return (contribution, chunkContext) -> {
+//
+//            //String[] targets = infiltrationTargets.split(",");
+//            String target1 = infiltrationTargets;
+//            //String target2 = targets[1];
+//
+//            log.info("Processing terminator tasklet");
+//            log.info("systemInfiltrationParamters is approaching first target : {}", target1);
+//            //log.info("systemInfiltrationParamters is approaching second target : {}", target2);
+//
+//            log.info("Terminator tasklet finished");
+//            return RepeatStatus.FINISHED;
+//        };
+//    }
 
 }
