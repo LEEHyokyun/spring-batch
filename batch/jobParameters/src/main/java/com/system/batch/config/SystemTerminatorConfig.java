@@ -12,6 +12,7 @@ import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.converter.JobParametersConverter;
 import org.springframework.batch.core.converter.JsonJobParametersConverter;
 import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.DefaultJobParametersValidator;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobRepository;
@@ -27,14 +28,25 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Slf4j
 @Configuration
 public class SystemTerminatorConfig {
+//    @Bean
+//    public Job processTerminatorJob(JobRepository jobRepository, Step terminationStep, SystemDestructionValidator validator) {
+//        return new JobBuilder("processTerminatorJob", jobRepository)
+//                .validator(validator)
+//                .start(terminationStep)
+//                .build();
+//    }
+
     @Bean
     public Job processTerminatorJob(JobRepository jobRepository, Step terminationStep, SystemDestructionValidator validator) {
         return new JobBuilder("processTerminatorJob", jobRepository)
-                .validator(validator)
+                .validator(new DefaultJobParametersValidator(
+                        new String[]{"destructionPower"}, //필수
+                        new String[]{"targetSystem"}      //선택
+                ))
                 .start(terminationStep)
                 .build();
     }
-
+    
     @Bean
     public Step terminationStep(JobRepository jobRepository, PlatformTransactionManager transactionManager, Tasklet terminatorTasklet) {
         return new StepBuilder("terminationStep", jobRepository)
