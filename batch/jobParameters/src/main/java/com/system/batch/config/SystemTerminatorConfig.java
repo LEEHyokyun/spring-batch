@@ -1,6 +1,7 @@
 package com.system.batch.config;
 
 //import com.system.batch.jobParameters.SystemInfiltrationParameters;
+import com.system.batch.jobParametersValidator.SystemDestructionValidator;
 import com.system.batch.tasklet.SystemDestructionTasklet;
 import com.system.batch.util.QuestDifficulty;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +28,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 @Configuration
 public class SystemTerminatorConfig {
     @Bean
-    public Job processTerminatorJob(JobRepository jobRepository, Step terminationStep) {
+    public Job processTerminatorJob(JobRepository jobRepository, Step terminationStep, SystemDestructionValidator validator) {
         return new JobBuilder("processTerminatorJob", jobRepository)
+                .validator(validator)
                 .start(terminationStep)
                 .build();
     }
