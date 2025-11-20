@@ -7,6 +7,9 @@ Spring Boot 환경에서 Spring Batch Framework를 실무적으로 활용하기 
 146037ba52f8ef9fa26ee4c6487f23daf9575c88까지 monolithic 구조로 진행.
 cbb0f0461abf3adb891746514a92b55b1dae4e3b이후 sub modules(MSA) 구조로 변경.
 
+파일기반처리 시 절대경로를 지정하여 전달해줄 것.
+파일의 인코딩 형식은 EUC-KR로 할 것(윈도우 powershell 환경).
+
 ## 3. Domain Driven Structure
 
 [발현]
