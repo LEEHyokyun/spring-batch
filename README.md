@@ -145,3 +145,13 @@ public Job malwareJob() { ... }
 - ItemReader 구성: Job Configuration에 @Bean 정의
 - 커스텀 ItemReader: 배치 모듈 내에 위치
 - 모든 Job 관련 구성은 하나의 Configuration에! 💀
+
+## 4. Reader/Writer/Chunk
+
+| 단계             | 동작                           |
+| -------------- | ---------------------------- |
+| **Reader**     | 아이템 1개씩 읽어서 버퍼에 저장           |
+| **버퍼 충전**      | chunkSize 개수만큼 모이면 다음 단계로 이동 |
+| **Processor**  | 버퍼의 아이템들을 전부 가공              |
+| **Writer**     | 가공된 아이템들을 한꺼번에 저장/출력         |
+| **커밋(Commit)** | Writer 실행 후 트랜잭션 커밋          |
