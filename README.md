@@ -155,3 +155,14 @@ public Job malwareJob() { ... }
 | **Processor**  | 버퍼의 아이템들을 전부 가공              |
 | **Writer**     | 가공된 아이템들을 한꺼번에 저장/출력         |
 | **커밋(Commit)** | Writer 실행 후 트랜잭션 커밋          |
+
+## 5. SystemCommandTasklet 구성 시 유의사항
+
+- 리눅스 환경은 크게 제한적인 상황이 없다.
+- 윈도우 환경의 경우 반드시 cmd 환경에서의 실행을 기준으로 하며, cmd /c 로 명령을 시작해야 한다.
+  - mkdir -p (x) mkdir path1 path2 (o) -> 덮어쓰기 불가, 디렉토리 처음부터 존재하면 안됨
+  - bin/sh (x) 
+  - scp (x) copy (o)
+- 다중 명령 작성시 && 로 cli를 조인한다.
+- systemoCommandTasklet의 명령어는 null일 수 없다(반드시 명령어를 작성하여 return해주어야 함).
+- 웬만해서는 환경적 차이가 없도록 java에서 제공하는 api를 최대한 활용한다(특히 Path/Resource 등)

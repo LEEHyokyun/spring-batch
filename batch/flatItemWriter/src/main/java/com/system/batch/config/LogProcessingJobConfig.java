@@ -80,8 +80,8 @@ public class LogProcessingJobConfig {
 //                .build();
 //    }
 
-//    //-p 옵션은 윈도우에서 안먹힘..따라서 collected_logs라는 디렉토리 생성(mkdir)은 처음부터 존재하지 않아야 한다.
-//    //SystemCommandTasklet -> 반드시 cli 명령어 작성 필요
+    //-p 옵션은 윈도우에서 안먹힘..따라서 collected_logs라는 디렉토리 생성(mkdir)은 처음부터 존재하지 않아야 한다.
+    //SystemCommandTasklet -> 반드시 cli 명령어 작성 필요
 //    @Bean
 //    @StepScope
 //    public SystemCommadTasklet mkdirTasklet(
