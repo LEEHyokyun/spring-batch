@@ -73,6 +73,13 @@ public class LogProcessingJobConfig {
                 .build();
     }
 
+//    @Bean
+//    public Step createDirectoryStep(SystemCommandTasklet mkdirTasklet) {
+//        return new StepBuilder("createDirectoryStep", jobRepository)
+//                .tasklet(mkdirTasklet, transactionManager)
+//                .build();
+//    }
+
 //    //-p 옵션은 윈도우에서 안먹힘..따라서 collected_logs라는 디렉토리 생성(mkdir)은 처음부터 존재하지 않아야 한다.
 //    //SystemCommandTasklet -> 반드시 cli 명령어 작성 필요
 //    @Bean
@@ -89,7 +96,7 @@ public class LogProcessingJobConfig {
 //        String processedLogsPath = "processed_logs\\" + date;
 //        //String collectedLogsPath = String.format("collected_logs\\%s", date);
 //        //String processedLogsPath = String.format("processed_logs\\%s", date);
-//        //String command = String.format("mkdir %s && mkdir %s", collectedLogsPath, processedLogsPath);
+//        String command = String.format("mkdir %s && mkdir %s", collectedLogsPath, processedLogsPath);
 ////
 //        //tasklet.setCommand("mkdir", "-p", collectedLogsPath, processedLogsPath);
 //        //tasklet.setCommand("cmd", "/c", "mkdir", collectedLogsPath);
