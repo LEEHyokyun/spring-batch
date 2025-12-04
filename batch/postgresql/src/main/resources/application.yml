@@ -1,0 +1,20 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: kill-batch-system-postgresql
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/root
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: 1234
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:org/springframework/batch/core/schema-drop-postgresql.sql
+  batch:
+    jdbc:
+      initialize-schema: always
+

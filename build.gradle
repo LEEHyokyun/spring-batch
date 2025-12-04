@@ -26,7 +26,8 @@ allprojects  {
 	dependencies {
 		implementation 'org.springframework.boot:spring-boot-starter-json'
 		implementation 'org.springframework.boot:spring-boot-starter-batch'
-		runtimeOnly 'com.h2database:h2'
+		//runtimeOnly 'com.h2database:h2'
+		runtimeOnly 'org.postgresql:postgresql'
 
 		compileOnly 'org.projectlombok:lombok'
 		annotationProcessor 'org.projectlombok:lombok'
