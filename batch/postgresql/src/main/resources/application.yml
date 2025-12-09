@@ -4,7 +4,6 @@ server:
 spring:
   application:
     name: kill-batch-system-postgresql
-
   datasource:
     url: jdbc:postgresql://localhost:5432/root
     driver-class-name: org.postgresql.Driver
@@ -17,6 +16,13 @@ spring:
   batch:
     jdbc:
       initialize-schema: always
+  jpa:
+    show-sql: true #SQL 실행문 로그로 기록
+    properties:
+      hibernate:
+        format_sql: true #pretty format
+        highlight_sql : true #colored
+
 
 logging:
   level:
