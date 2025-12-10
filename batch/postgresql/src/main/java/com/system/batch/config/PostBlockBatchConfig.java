@@ -18,6 +18,7 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaCursorItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.orm.JpaNamedQueryProvider;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,10 +68,11 @@ public class PostBlockBatchConfig {
         return new JpaCursorItemReaderBuilder<Posts>()
                 .name("postBlockReader")
                 .entityManagerFactory(entityManagerFactory)
-                .queryString("""
-                        SELECT p FROM Posts p JOIN FETCH p.reports r
-                        WHERE r.reportedAt >= :startDateTime AND r.reportedAt < :endDateTime
-                        """)
+//                .queryString("""
+//                        SELECT p FROM Posts p JOIN FETCH p.reports r
+//                        WHERE r.reportedAt >= :startDateTime AND r.reportedAt < :endDateTime
+//                        """)
+                .queryProvider(createQueryProvider())
                 .parameterValues(Map.of(
                         "startDateTime", startDateTime == null ? LocalDateTime.now().minusMonths(3) : startDateTime,
                         "endDateTime", endDateTime == null ? LocalDateTime.now().plusMonths(3) : endDateTime
@@ -161,5 +163,12 @@ public class PostBlockBatchConfig {
         private void calculateTimeValidity(LocalDateTime reportedAt) {
             // 시간 가중치 계산하는 척
         }
+    }
+
+    private JpaNamedQueryProvider<Posts> createQueryProvider() {
+        JpaNamedQueryProvider<Posts> queryProvider = new JpaNamedQueryProvider<>();
+        queryProvider.setEntityClass(Posts.class);
+        queryProvider.setNamedQuery("Post.findByReportsReportedAtBetween");
+        return queryProvider;
     }
 }

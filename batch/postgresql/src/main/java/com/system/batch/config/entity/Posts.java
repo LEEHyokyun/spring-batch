@@ -1,9 +1,6 @@
 package com.system.batch.config.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -14,6 +11,10 @@ import java.util.List;
  */
 @Entity
 @Table(name = "posts")
+@NamedQuery(
+        name = "Post.findByReportsReportedAtBetween",
+        query = "SELECT p FROM Posts p JOIN FETCH p.reports r WHERE r.reportedAt >= :startDateTime AND r.reportedAt < :endDateTime"
+)
 @Getter
 public class Posts {
     @Id
