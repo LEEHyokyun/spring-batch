@@ -81,6 +81,7 @@ public class PostBlockPagingBatchConfig {
                         "endDateTime", endDateTime == null ? LocalDateTime.now().plusMonths(3) : endDateTime
                 ))
                 .pageSize(5)
+                .transacted(false)
                 .build();
     }
 
