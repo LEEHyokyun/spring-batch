@@ -2,6 +2,7 @@ package com.system.batch.config.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import org.hibernate.annotations.BatchSize;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +24,7 @@ public class Posts {
     private String content;       // 게시물 내용
     private String writer;        // 작성자
 
-    @OneToMany(mappedBy = "posts")
+    @OneToMany(mappedBy = "posts", fetch = FetchType.EAGER)
+    @BatchSize(size = 5)
     private List<Reports> reports = new ArrayList<>();
 }

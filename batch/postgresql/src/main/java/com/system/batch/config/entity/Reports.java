@@ -15,7 +15,7 @@ public class Reports {
     @Id
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "post_id")
     private Posts posts;
 
