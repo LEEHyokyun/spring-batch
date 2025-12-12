@@ -1,5 +1,6 @@
 package com.system.batch.config;
 
+import com.system.batch.config.entity.BlockedPosts;
 import com.system.batch.config.entity.Posts;
 import com.system.batch.config.entity.Reports;
 import jakarta.persistence.EntityManagerFactory;
@@ -17,8 +18,10 @@ import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.item.database.JpaCursorItemReader;
+import org.springframework.batch.item.database.JpaItemWriter;
 import org.springframework.batch.item.database.JpaPagingItemReader;
 import org.springframework.batch.item.database.builder.JpaCursorItemReaderBuilder;
+import org.springframework.batch.item.database.builder.JpaItemWriterBuilder;
 import org.springframework.batch.item.database.builder.JpaPagingItemReaderBuilder;
 import org.springframework.batch.item.database.orm.JpaNamedQueryProvider;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,10 +54,10 @@ public class PostBlockPagingBatchConfig {
     public Step postBlockStep(
             JpaPagingItemReader<Posts> postBlockReader,
             PostBlockProcessor postBlockProcessor,
-            ItemWriter<BlockedPost> postBlockWriter
+            ItemWriter<BlockedPosts> postBlockWriter
     ) {
         return new StepBuilder("postBlockStep", jobRepository)
-                .<Posts, BlockedPost>chunk(5, transactionManager)
+                .<Posts, BlockedPosts>chunk(5, transactionManager)
                 .reader(postBlockReader)
                 .processor(postBlockProcessor)
                 .writer(postBlockWriter)
@@ -87,46 +90,26 @@ public class PostBlockPagingBatchConfig {
 
 
     @Bean
-    public ItemWriter<BlockedPost> postBlockWriter() {
-        return items -> {
-            items.forEach(blockedPost -> {
-                log.info("💀 TERMINATED: [ID:{}] '{}' by {} | detected:{} | scored:{} | kill -9 at {}",
-                        blockedPost.getPostId(),
-                        blockedPost.getTitle(),
-                        blockedPost.getWriter(),
-                        blockedPost.getReportCount(),
-                        String.format("%.2f", blockedPost.getBlockScore()),
-                        blockedPost.getBlockedAt().format(DateTimeFormatter.ofPattern("HH:mm:ss")));
-            });
-        };
+    public JpaItemWriter<BlockedPosts> postBlockWriter() {
+        return new JpaItemWriterBuilder<BlockedPosts>()
+                .entityManagerFactory(entityManagerFactory)
+                .usePersist(true)
+                .build();
     }
 
-    /**
-     * 차단된 게시글 - 처형 결과 보고서
-     */
-    @Getter
-    @Builder
-    @ToString
-    public static class BlockedPost {
-        private Long postId;
-        private String writer;
-        private String title;
-        private int reportCount;
-        private double blockScore;
-        private LocalDateTime blockedAt;
-    }
+
 
     @Component
-    public static class PostBlockProcessor implements ItemProcessor<Posts, BlockedPost> {
+    public static class PostBlockProcessor implements ItemProcessor<Posts, BlockedPosts> {
 
         @Override
-        public BlockedPost process(Posts post) {
+        public BlockedPosts process(Posts post) {
             // 각 신고의 신뢰도를 기반으로 차단 점수 계산
             double blockScore = calculateBlockScore(post.getReports());
 
             // 차단 점수가 기준치를 넘으면 처형 결정
             if (blockScore >= 7.0) {
-                return BlockedPost.builder()
+                return BlockedPosts.builder()
                         .postId(post.getId())
                         .writer(post.getWriter())
                         .title(post.getTitle())
