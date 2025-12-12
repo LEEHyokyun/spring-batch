@@ -45,7 +45,7 @@ public class PostBlockPagingWriteBatchConfig {
 
     @Bean
     public Job postBlockBatchJob(Step postBlockStep) {
-        return new JobBuilder("postBlockPagingBatchJob", jobRepository)
+        return new JobBuilder("postBlockPagingWriteBatchJob", jobRepository)
                 .start(postBlockStep)
                 .build();
     }
