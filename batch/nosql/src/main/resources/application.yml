@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: kill-batch-system-mongodb
+    name: kill-batch-system-nosql
   datasource:
     url: jdbc:postgresql://localhost:5432/root
     driver-class-name: org.postgresql.Driver
@@ -25,6 +25,9 @@ spring:
   data:
     mongodb:
       database: cyberops
+    redis:
+      host: localhost
+      port: 6379
 
 logging:
   level:
