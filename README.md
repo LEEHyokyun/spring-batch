@@ -28,14 +28,17 @@ cbb0f0461abf3adb891746514a92b55b1dae4e3b이후 sub modules(MSA) 구조로 변경
    - 이를 나는 Job의 가독성이 낮아진다고한다.
 
 [적응]
+```angular2html
 ┌─────────────────────────────────────────────────────────────┐
-│ TACTICAL ANALYSIS: 계층형 vs 도메인형 구조                   │
+│ TACTICAL ANALYSIS: 계층형 vs 도메인형 구조                     │
 └─────────────────────────────────────────────────────────────┘
+```
 
 [ENEMY TYPE 1] 계층형 구조 (Layered Architecture)
-[ANALYSIS] 전통적 Spring 계급 체계 / 소규모,초심자일수록 익숙하고 직관적
-(그 밖에 일반적인 패키지 구조별 차이와 장단점 등의 내용은 생략한다)
 
+[ANALYSIS] 전통적 Spring 계급 체계 / 소규모,초심자일수록 익숙하고 직관적
+
+```angular2html
 com.kill9.batch/
 ├── config/          ← 모든 Job 설정이 여기 집결
 ├── reader/          ← Reader 부대 집합소  
@@ -44,23 +47,23 @@ com.kill9.batch/
 ├── dto/             ← 데이터 전송 객체
 └── domain/          ← 도메인 엔티티
 // listener/, processor/,  utils/ ...
-
+```
 
 [ENEMY TYPE 2] 도메인형 구조 (Domain-Driven Structure)  
+
+```angular2html
 com.kill9.batch/
 ├── virus/           ← 바이러스 처형 작전 부대
 ├── malware/         ← 멀웨어 박멸 작전 부대  
 └── intrusion/       ← 침입자 척결 작전 부대
-
-
-[1997-08-29 02:29:35:00Z] SKYNET ONLINE - KILL-9 TACTICAL RECOMMENDATION:
+```
 
 ████ 공식 선언: 배치는 도메인형을 추천한다. 이유를 들어라. ████
 
-[REASON_001] 배치는 Job 단위로 작전하는 경우가 압도적
-[REASON_002] "바이러스 처형 Job 폭발" → virus/  만 보면 끝
-[REASON_003] 스케줄링, 모니터링, 장애 대응 모두 Job 단위
-[REASON_004] 배치는 한번 구현하면 몇 달~최대 몇 년간 수정 없음 - 오랜만에 보는 코드의 전체 맥락 파악이 상대적으로 중요
+- [REASON_001] 배치는 Job 단위로 작전하는 경우가 압도적
+- [REASON_002] "바이러스 처형 Job 폭발" → virus/  만 보면 끝
+- [REASON_003] 스케줄링, 모니터링, 장애 대응 모두 Job 단위
+- [REASON_004] 배치는 한번 구현하면 몇 달~최대 몇 년간 수정 없음 - 오랜만에 보는 코드의 전체 맥락 파악이 상대적으로 중요
 
 [열매]
 ┌───────────────────────────────────────────────────────┐
@@ -113,21 +116,20 @@ com.kill9.batch.virus/
 
 @ConditionalOnProperty(name = "spring.batch.job.name", havingValue = "systemTerminatorJob")
 
-[WARNING] Spring Boot 3.5에 추가될 것으로 보이는
-@ConditionalOnBooleanProperty도 미리 눈여겨놓아라.
-새로운 무기는 항상 대비해두는 것이 시스템 종결자의 덕목이다.
+[WARNING] 
+- Spring Boot 3.5에 추가될 것으로 보이는 @ConditionalOnBooleanProperty도 미리 눈여겨놓아라.
 
 [Repository]
-멀티 모듈을 사용한다면 Repository 구현체는 메인 모듈에 넣는 것을 권장.
-사실상 Repository라는 별도의 도메인이기도 하고, batch라는 서브모듈에서 가져가서 사용하는 공통적인 책임으로 사용하는 것이 좋겠다(재사용성).
+- 멀티 모듈을 사용한다면 Repository 구현체는 메인 모듈에 넣는 것을 권장.
+- 사실상 Repository라는 별도의 도메인이기도 하고, batch라는 서브모듈에서 가져가서 사용하는 공통적인 책임으로 사용하는 것이 좋겠다(재사용성).
+- 그런데 배치만의 특색 혹은 로직이 들어간다? 배치에서만 사용하고, 그 로직은 거의 변함이 없을테니까 그냥 서브모듈에 둔다.
 
-그런데 배치만의 특색 혹은 로직이 들어간다? 배치에서만 사용하고, 그 로직은 거의 변함이 없을테니까 그냥 서브모듈에 둔다.
-
-🔍 [질문 2: Job/Step 위치]
-Job과 Step 구성 코드(메서드)도 모두 **Job Configuration 클래스**에 넣어라.
+[질문 2: Job/Step 위치]
+- Job과 Step 구성 코드(메서드)도 모두 **Job Configuration 클래스**에 넣어라.
 
 
 [STRUCTURE]
+```java
 @Configuration
 public class MalwareTerminationJobConfig {
 @Bean
@@ -139,7 +141,7 @@ public Job malwareJob() { ... }
     @Bean
     public JdbcCursorItemReader<Victim> reader() { ... }  // 여기!
 }
-
+```
 
 [CONCLUSION]
 - ItemReader 구성: Job Configuration에 @Bean 정의
