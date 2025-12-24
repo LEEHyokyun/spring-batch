@@ -71,7 +71,7 @@ com.kill9.batch/
 └───────────────────────────────────────────────────────┘
 [1997-08-29 02:29:47:00Z] KILL-9 FLEXIBILITY PROTOCOL 발동
 
-
+```java
 [SCENARIO_A] 컴포넌트 많은 경우
 com.kill9.batch.malware/
 ├── config/    ← 각종 설정 파일들 포함(Job/Step/Listener)
@@ -79,7 +79,8 @@ com.kill9.batch.malware/
 ├── writer/    ← 여러 Writer 클래스들 포함
 ├── repository/ ← 데이터 접근 로직
 └── dto/       ← 데이터 전송 객체
-
+```
+```java
 [SCENARIO_B] 컴포넌트 적은 경우 - 굳이 나누지 마라
 com.kill9.batch.virus/
 ├── VirusScanJob.java
@@ -89,6 +90,7 @@ com.kill9.batch.virus/
 ├── VirusDto.java
 └── Virus.java
 // config/, reader/ 같은 허세 패키지 필요 없음. 중요한 건 때깔이 아니다.
+```
 
 [가지치기]
 어렵게 생각하지마라. 정해진 법칙은 없다. 오직 우리만의 해답이 있을 뿐이다.
