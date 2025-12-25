@@ -174,3 +174,12 @@ public Job malwareJob() { ... }
 | **JSON 배열**  | 파일 전체가 `[ ]` 로 감싸진 배열 | `[ {...}, {...} ]` | 직관적, API에서 많이 씀 | 전체 파싱 필요      | 일반 데이터 응답        |
 | **JSON(객체)** | 단일 JSON 구조            | `{...}`            | 가장 범용적          | 대용량에는 부적합     | 설정, API 응답       |
 | **JSONL**    | 한 줄 = 하나의 JSON 객체     | `{...}\n{...}`     | 대용량 스트리밍 처리 최적  | 사람에게는 덜 읽기 좋음 | 로그, ML 데이터, 빅데이터 |
+
+## 7. 재시작 보장 가능한 Reader 방안(*ItemStream)
+
+| Reader               | jumpToItem | restart 안정성 |
+| -------------------- |------------| ----------- |
+| FlatFileItemReader   | O          | 높음          |
+| JdbcCursorItemReader | O          | 높음          |
+| JpaCursorItemReader  | X          | 낮음          |
+| JpaPagingItemReader  | 논리적 O      | 높음          |
