@@ -177,6 +177,9 @@ public Job malwareJob() { ... }
 
 ## 7. 재시작 보장 가능한 Reader 방안(*ItemStream)
 
+- Spring batch에서의 itemStream 기반 상태관리 전략은 "필수"이다.
+- delegating을 제외하면 이는 생명주기에 따른 검사항목, delegating은 검사항목이 아니기에 반드시 등록하고 진행한다.
+
 | Reader               | jumpToItem | restart 안정성 |
 | -------------------- |------------| ----------- |
 | FlatFileItemReader   | O          | 높음          |
