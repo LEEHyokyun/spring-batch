@@ -186,3 +186,10 @@ public Job malwareJob() { ... }
 | JdbcCursorItemReader | O          | 높음          |
 | JpaCursorItemReader  | X          | 낮음          |
 | JpaPagingItemReader  | 논리적 O      | 높음          |
+
+
+## 8. 데이터 유효성 검증(*ItemProcessor)
+
+- Validator
+- data transformation
+- data enrichment
