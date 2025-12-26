@@ -159,6 +159,7 @@ public class SystemLogProcessingValidatorConfig {
 
     @Data
     public static class SystemLog {
+        private Long userId;
         private String type;      // CRITICAL or NORMAL
         private String message;
         private int cpuUsage;

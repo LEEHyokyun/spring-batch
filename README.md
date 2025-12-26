@@ -193,3 +193,5 @@ public Job malwareJob() { ... }
 - Validator
 - data transformation
 - data enrichment
+
+성능 개선? beforeWrite 리스너 활용하여 chunk size 만큼의 api call 횟수 최적화.
