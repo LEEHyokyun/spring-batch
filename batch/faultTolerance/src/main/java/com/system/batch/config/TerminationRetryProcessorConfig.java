@@ -44,6 +44,7 @@ public class TerminationRetryProcessorConfig {
                 .retry(TerminationFailedException.class) // 재시도 대상 예외 추가
                 .retryLimit(3)
                 .listener(retryListener())
+                .processorNonTransactional()
                 .build();
     }
 
