@@ -1,0 +1,34 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: kill-batch-system-jobSquad
+  datasource:
+    url: jdbc:postgresql://localhost:5432/root
+    driver-class-name: org.postgresql.Driver
+    username: root
+    password: 1234
+  sql:
+    init:
+      mode: always
+#      schema-locations: classpath:org/springframework/batch/core/schema-drop-postgresql.sql
+  batch:
+    jdbc:
+      initialize-schema: always
+  jpa:
+    show-sql: true #SQL 실행문 로그로 기록
+    properties:
+      hibernate:
+        format_sql: true #pretty format
+        highlight_sql : true #colored
+  data:
+    mongodb:
+      database: cyberops
+    redis:
+      host: localhost
+      port: 6379
+
+logging:
+  level:
+    org.springframework.batch.item.database: DEBUG
