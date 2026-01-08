@@ -14,6 +14,7 @@ public class KillBatchSystemApplication {
 		/*
 		* web run = batch run
 		* */
-		System.exit(SpringApplication.exit(SpringApplication.run(KillBatchSystemApplication.class, args)));
+		//System.exit(SpringApplication.exit(SpringApplication.run(KillBatchSystemApplication.class, args)));
+		SpringApplication.run(KillBatchSystemApplication.class, args);
 	}
 }
