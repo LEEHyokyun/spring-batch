@@ -13,7 +13,10 @@ public class KillBatchSystemApplication {
 		* */
 		/*
 		* web run = batch run
+		* run -> exit code = 0
+		* exit -> exit code = 5
 		* */
 		System.exit(SpringApplication.exit(SpringApplication.run(KillBatchSystemApplication.class, args)));
+		//SpringApplication.run(KillBatchSystemApplication.class, args);
 	}
 }
