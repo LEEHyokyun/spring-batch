@@ -1,4 +1,4 @@
-package com.system.batch.config.executor;
+package com.system.batch.config.brutal.executor;
 
 import org.springframework.boot.autoconfigure.batch.BatchTaskExecutor;
 import org.springframework.context.annotation.Bean;
