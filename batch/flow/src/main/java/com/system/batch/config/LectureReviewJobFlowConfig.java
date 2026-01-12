@@ -37,8 +37,18 @@ public class LectureReviewJobFlowConfig {
                                   Flow lectureValidationFlow,
                                   Step notifyInstructorStep) {
         return new JobBuilder("newCourseReviewJob", jobRepository)
-                .start(lectureValidationFlow)  // Flow를 Job의 시작점으로 사용
-                .next(notifyInstructorStep)    // Flow 완료 후 추가 Step 실행
+                //.start(lectureValidationFlow)  // Flow를 Job의 시작점으로 사용
+                .start(notifyInstructorStep)    // Flow 완료 후 추가 Step 실행
+                .end()
+                .build();
+    }
+
+    @Bean
+    public Job validationStep(JobRepository jobRepository,
+                                  Flow lectureValidationFlow,
+                                  Step notifyInstructorStep) {
+        return new StepBuilder("newCourseReviewJob", jobRepository)
+                .flow(lectureValidationFlow)
                 .end()
                 .build();
     }
