@@ -23,14 +23,14 @@ import java.util.Random;
 public class LectureReviewJobExtendedConfig {
 
     @Bean
-    public Job lectureReviewJob(JobRepository jobRepository,
+    public Job lectureReviewJobExtended(JobRepository jobRepository,
                                 Step analyzeLectureStep,
                                 Step approveImmediatelyStep,
                                 Step initiateContainmentProtocolStep,
                                 Step lowQualityRejectionStep,
                                 Step priceGougerPunishmentStep,
                                 Step adminManualCheckStep) {
-        return new JobBuilder("inflearnLectureReviewExtendedJob", jobRepository)
+        return new JobBuilder("lectureReviewJobExtended", jobRepository)
                 .start(analyzeLectureStep) // 모든 것은 강의 분석에서 시작된다...
                 .on("APPROVED").to(approveImmediatelyStep)     //  합격. 즉시 승인 및 게시. 축배를 들어라!
 
@@ -42,6 +42,9 @@ public class LectureReviewJobExtendedConfig {
 
                 .from(analyzeLectureStep) //  마지막이다...
                 .on("666_UNKNOWN_PANIC").to(adminManualCheckStep)     // 💀💀💀💀 컨텐츠 담당자 공포에 떨며 검토 중 💀💀💀💀
+
+                .from(analyzeLectureStep)
+                .on("QUALITY_SUBSTANDARD").to(lowQualityRejectionStep)
 
                 .end() // Flow 종료
                 .build();
