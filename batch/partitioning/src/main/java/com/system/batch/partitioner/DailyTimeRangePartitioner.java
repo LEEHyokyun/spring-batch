@@ -30,6 +30,7 @@ public class DailyTimeRangePartitioner implements Partitioner {
          *  gridSize(파티션 개수)가 24(Hours)의 약수인지 확인
          *  구현 나름이지만, gridSize가
          *  전체 데이터 크기의 약수가 아니면 던져버리는게 맘 편하다.
+         *  24시간 데이터를 몇개의 권역으로 나눌 것인가.
          */
         if (24 % gridSize != 0) {
             /*
