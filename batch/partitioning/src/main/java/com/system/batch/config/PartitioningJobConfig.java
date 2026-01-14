@@ -150,7 +150,7 @@ public class PartitioningJobConfig {
     @NoArgsConstructor
     @AllArgsConstructor
     @Document(collection = "battlefield_logs")
-    public class BattlefieldLog {
+    public static class BattlefieldLog {
 
         @Id
         private String id;
