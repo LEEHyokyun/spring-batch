@@ -10,6 +10,9 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.LongSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.LongDeserializer
+      value-deserializer: com.system.batch.config.aggregate.StepExecutionDeserializer
 
   application:
     name: kill-batch-system-remotePartitioning

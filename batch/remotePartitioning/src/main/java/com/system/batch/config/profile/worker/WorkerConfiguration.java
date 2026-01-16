@@ -7,6 +7,7 @@ import com.system.batch.config.model.BattlefieldLog;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.integration.config.annotation.EnableBatchIntegration;
 import org.springframework.batch.integration.partition.RemotePartitioningWorkerStepBuilderFactory;
@@ -28,8 +29,11 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 import org.springframework.integration.channel.DirectChannel;
 import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
+import org.springframework.integration.handler.LoggingHandler;
 import org.springframework.integration.kafka.dsl.Kafka;
+import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandler;
 import org.springframework.kafka.core.ConsumerFactory;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import java.time.LocalDateTime;
@@ -65,6 +69,9 @@ public class WorkerConfiguration {
                 .writer(mongoLogWriter)
                 .build();
     }
+
+    @Bean
+    public DirectChannel outboundRequestsToManager() { return new DirectChannel(); }
 
     @Bean
     @StepScope
@@ -109,6 +116,19 @@ public class WorkerConfiguration {
         return IntegrationFlow
                 .from(Kafka.messageDrivenChannelAdapter(cf, "remote-partitioning"))
                 .channel(inboundRequestsFromManager())
+                .get();
+    }
+
+    @Bean // aggregate를 위한 메시지 outbound channel flow
+    public IntegrationFlow outboundFlow(KafkaTemplate<Long, StepExecution> kafkaTemplate,
+                                        DirectChannel outboundRequestsToManager) {
+
+        KafkaProducerMessageHandler<Long, StepExecution> messageHandler = new KafkaProducerMessageHandler<>(kafkaTemplate);
+
+        return IntegrationFlow
+                .from(outboundRequestsToManager)
+                .log(LoggingHandler.Level.INFO)
+                .handle(messageHandler)
                 .get();
     }
 

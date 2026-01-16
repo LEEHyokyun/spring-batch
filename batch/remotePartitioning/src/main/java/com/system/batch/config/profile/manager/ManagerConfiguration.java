@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.repository.JobRepository;
@@ -16,9 +17,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.expression.common.LiteralExpression;
 import org.springframework.integration.channel.DirectChannel;
+import org.springframework.integration.channel.QueueChannel;
 import org.springframework.integration.dsl.IntegrationFlow;
 import org.springframework.integration.expression.FunctionExpression;
+import org.springframework.integration.kafka.dsl.Kafka;
 import org.springframework.integration.kafka.outbound.KafkaProducerMessageHandler;
+import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.messaging.Message;
 
@@ -46,6 +50,7 @@ public class ManagerConfiguration {
                 .get("managerStep") // <--- (2) 팩토리에서 빌더 얻기
                 .partitioner("workerStep", dailyTimeRangePartitioner)
                 .outputChannel(outboundRequestsToWorkers()) // <--- (3) 출력 채널 지정!
+                .inputChannel(workerRepliesInputChannel())
                 .gridSize(4)
                 .build();
     }
@@ -55,6 +60,10 @@ public class ManagerConfiguration {
         return new DirectChannel();
     }
 
+    @Bean
+    public QueueChannel workerRepliesInputChannel() { return new  QueueChannel(); }
+
+    //메시지 전송
     @Bean //
     public IntegrationFlow outboundFlow(KafkaTemplate<Long, StepExecutionRequest> kafkaTemplate,
                                         StepExecutionPartitionRouter stepExecutionPartitionRouter) {
@@ -70,6 +79,18 @@ public class ManagerConfiguration {
                 .handle(messageHandler) // 카프카로 전송!
                 .get();
     }
+
+    //결과수신
+    @Bean //
+    public IntegrationFlow inboundFlow(ConsumerFactory<Long, StepExecution> cf,
+                                       QueueChannel workerRepliesInputChannel) {
+        return IntegrationFlow
+                .from(Kafka.messageDrivenChannelAdapter(cf, "step-execution-results")) // 이 채널로 메시지가 들어오면
+                .log() // 로그 한번 찍고
+                .handle(workerRepliesInputChannel()) // 결과 aggregate
+                .get();
+    }
+
 
     @Bean // <--- (5) Spring Batch 파티션과 카프카 토픽 파티션 매핑
     public StepExecutionPartitionRouter stepExecutionPartitionRouter() {

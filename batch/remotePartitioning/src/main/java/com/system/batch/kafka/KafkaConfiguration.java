@@ -17,4 +17,12 @@ public class KafkaConfiguration {
                 // replicas는 예제이므로 1로 설정 (기본값)
                 .build();
     }
+
+    @Bean
+    public NewTopic resultTopic(){
+        //manager <-> worker : "resultTopic"
+        return TopicBuilder.name("step-execution-results")
+                .partitions(1)
+                .build();
+    }
 }
