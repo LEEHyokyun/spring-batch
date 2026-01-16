@@ -1,0 +1,30 @@
+services:
+  kafka:
+    image: 'bitnami/kafka:3.6'
+    ports:
+      - '9092:9092' # 외부 클라이언트(Manager/Worker) 접속용 포트
+    environment:
+      # === KRaft 모드 설정 ===
+      - KAFKA_BROKER_ID=1
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=broker,controller
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=1@kafka:9093
+      # === 리스너 설정 (네트워크 인터페이스) ===
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CLIENT:PLAINTEXT,EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT # 사용할 보안 프로토콜
+      - KAFKA_CFG_LISTENERS=CLIENT://:9094,EXTERNAL://:9092,CONTROLLER://:9093 # 내부/외부/컨트롤러 리스너
+      - KAFKA_CFG_ADVERTISED_LISTENERS=CLIENT://kafka:9094,EXTERNAL://localhost:9092
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=CLIENT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - ALLOW_PLAINTEXT_LISTENER=yes # PLAINTEXT 리스너 허용 (예제용)
+    volumes:
+      - ./data/kafka:/bitnami/kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest # 웹 기반 Kafka 관리 도구
+    ports:
+      - '8080:8080' # 호스트 머신에서 접속할 포트
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=skynet # Kafka UI에 표시될 클러스터 이름
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9094 # 접속할 Kafka 브로커 주소 (Docker 내부 통신용 CLIENT 리스너 사용)
+    depends_on:
+      - kafka # kafka 서비스가 먼저 실행된 후 실행
