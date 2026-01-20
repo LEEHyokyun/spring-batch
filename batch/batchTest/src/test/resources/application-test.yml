@@ -4,15 +4,15 @@ server:
 spring:
   application:
     name: kill-batch-system-batchTest
-#  datasource:
-#    url: jdbc:postgresql://localhost:5432/root
-#    driver-class-name: org.postgresql.Driver
-#    username: root
-#    password: 1234
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
   sql:
     init:
       mode: always
-      schema-locations: classpath:org/springframework/batch/core/schema-drop-postgresql.sql
+      schema-locations: classpath:schema.sql
   batch:
     job:
       enabled: false
@@ -24,12 +24,6 @@ spring:
       hibernate:
         format_sql: true #pretty format
         highlight_sql : true #colored
-#  data:
-#    mongodb:
-#      database: cyberops
-#    redis:
-#      host: localhost
-#      port: 6379
 
 logging:
   level:
