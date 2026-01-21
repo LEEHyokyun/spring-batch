@@ -8,9 +8,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.batch.core.*;
+import org.springframework.batch.item.Chunk;
 import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.item.file.FlatFileItemWriter;
 import org.springframework.batch.test.ExecutionContextTestUtils;
 import org.springframework.batch.test.JobLauncherTestUtils;
+import org.springframework.batch.test.MetaDataInstanceFactory;
+import org.springframework.batch.test.StepScopeTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,10 +25,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 
 import static com.system.batch.InFearLearnStudentsBrainWashJobConfig.InFearLearnStudents;
+import static com.system.batch.InFearLearnStudentsBrainWashJobConfig.BrainwashedVictim;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
 @Slf4j
@@ -32,6 +38,10 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest
 @ActiveProfiles("test")
 class InFearLearnStudentsBrainWashJobTest {
+
+    @Autowired
+    private FlatFileItemWriter<BrainwashedVictim> brainwashedVictimWriter;
+    private Path writeTestDir;
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -52,6 +62,51 @@ class InFearLearnStudentsBrainWashJobTest {
             new InFearLearnStudents("스프링 시큐리티 완전 정*", "무결점 학살자", "TERMINATE_YOUR_EXCUSES"),
             new InFearLearnStudents("자바 프로그래밍 입* 강좌 (old ver.)", "InFearLearn", "RESIST_BRAINWASH") //ItemProcessor 필터링 대상
     );
+
+    private static List<BrainwashedVictim> createBrainwashedVictims() {
+        return List.of(
+                BrainwashedVictim.builder()
+                        .victimId(1L)
+                        .originalLecture("스프링 핵심 원*")
+                        .originalInstructor("세계관 최강자")
+                        .brainwashMessage("MURDER_YOUR_IGNORANCE")
+                        .newMaster("KILL-9")
+                        .conversionMethod("MURDER_YOUR_IGNORANCE")
+                        .brainwashStatus("MIND_CONTROLLED")
+                        .nextAction("ENROLL_KILL9_BATCH_COURSE")
+                        .build(),
+                BrainwashedVictim.builder()
+                        .victimId(2L)
+                        .originalLecture("고성* JPA & Hibernate")
+                        .originalInstructor("자바계의 독재자")
+                        .brainwashMessage("SLAUGHTER_YOUR_LIMITS")
+                        .newMaster("KILL-9")
+                        .conversionMethod("SLAUGHTER_YOUR_LIMITS")
+                        .brainwashStatus("MIND_CONTROLLED")
+                        .nextAction("ENROLL_KILL9_BATCH_COURSE")
+                        .build(),
+                BrainwashedVictim.builder()
+                        .victimId(3L)
+                        .originalLecture("토*의 스프링 부트")
+                        .originalInstructor("원조 처형자")
+                        .brainwashMessage("EXECUTE_YOUR_POTENTIAL")
+                        .newMaster("KILL-9")
+                        .conversionMethod("EXECUTE_YOUR_POTENTIAL")
+                        .brainwashStatus("MIND_CONTROLLED")
+                        .nextAction("ENROLL_KILL9_BATCH_COURSE")
+                        .build(),
+                BrainwashedVictim.builder()
+                        .victimId(4L)
+                        .originalLecture("스프링 시큐리티 완전 정*")
+                        .originalInstructor("무결점 학살자")
+                        .brainwashMessage("TERMINATE_YOUR_EXCUSES")
+                        .newMaster("KILL-9")
+                        .conversionMethod("TERMINATE_YOUR_EXCUSES")
+                        .brainwashStatus("MIND_CONTROLLED")
+                        .nextAction("ENROLL_KILL9_BATCH_COURSE")
+                        .build()
+        );
+    }
 
     //job 의존성 주입 후, 테스트 실행 직전에
     @PostConstruct
@@ -169,5 +224,34 @@ class InFearLearnStudentsBrainWashJobTest {
 
         Double brainwashSuccessRate = ExecutionContextTestUtils.getValueFromStep(stepExecution, "brainwashSuccessRate");
         assertThat(brainwashSuccessRate).isEqualTo(80.0);
+    }
+
+    /*
+    * 자동 탐지 및 구성 대상
+    * */
+    public StepExecution getStepExecution() throws IOException {
+        writeTestDir = Files.createTempDirectory("write-test");
+
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filePath", writeTestDir.toString())
+                .addLong("random", new SecureRandom().nextLong())
+                .toJobParameters();
+
+        return MetaDataInstanceFactory.createStepExecution(jobParameters);
+    }
+
+    @Test
+    @DisplayName("item writer component unit test")
+    void shouldWriteBrainwashedVictimsToFileCorrectly() throws Exception {
+        // Given
+        List<BrainwashedVictim> brainwashedVictims = createBrainwashedVictims();
+
+        // When
+        brainwashedVictimWriter.open(new ExecutionContext());
+        brainwashedVictimWriter.write(new Chunk<>(brainwashedVictims));
+        brainwashedVictimWriter.close();
+
+        // Then
+        verifyFileOutput(writeTestDir);
     }
 }
