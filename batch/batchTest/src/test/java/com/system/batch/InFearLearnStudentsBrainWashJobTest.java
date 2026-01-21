@@ -8,6 +8,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 import org.springframework.batch.core.*;
+import org.springframework.batch.item.ExecutionContext;
+import org.springframework.batch.test.ExecutionContextTestUtils;
 import org.springframework.batch.test.JobLauncherTestUtils;
 import org.springframework.batch.test.context.SpringBatchTest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +17,11 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 
 import static com.system.batch.InFearLearnStudentsBrainWashJobConfig.InFearLearnStudents;
@@ -36,7 +40,7 @@ class InFearLearnStudentsBrainWashJobTest {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
-    private Job InFearLearnStudentsBrainWashJobConfig;
+    private Job InFearLearnStudentsBrainWashJob;
 
     @TempDir
     private Path tempDir;
@@ -52,7 +56,7 @@ class InFearLearnStudentsBrainWashJobTest {
     //job 의존성 주입 후, 테스트 실행 직전에
     @PostConstruct
     public void configureJobLauncherTestUtils() throws Exception {
-        jobLauncherTestUtils.setJob(InFearLearnStudentsBrainWashJobConfig);
+        jobLauncherTestUtils.setJob(InFearLearnStudentsBrainWashJob);
     }
 
     //테스트 종료 후
@@ -95,5 +99,75 @@ class InFearLearnStudentsBrainWashJobTest {
                 jdbcTemplate.update("INSERT INTO infearlearn_students (current_lecture, instructor, persuasion_method) VALUES (?, ?, ?)",
                         student.getCurrentLecture(), student.getInstructor(), student.getPersuasionMethod())
         );
+    }
+
+    @Test
+    @DisplayName("Step Unit step to listener")
+    void shouldExecuteBrainwashStepAndVerifyOutput() throws IOException {
+        // Given
+        insertTestStudents();
+        JobParameters jobParameters = jobLauncherTestUtils.getUniqueJobParametersBuilder()
+                .addString("filePath", tempDir.toString())
+                .toJobParameters();
+
+
+        // When
+        JobExecution jobExecution =
+                jobLauncherTestUtils.launchStep("inFearLearnStudentsBrainWashStep", jobParameters);
+
+
+        // Then
+        StepExecution stepExecution = jobExecution.getStepExecutions().iterator().next();
+        verifyStepExecution(stepExecution);
+        verifyExecutionContextPromotion(jobExecution);
+        verifyFileOutput(tempDir);
+    }
+
+    private void verifyStepExecution(StepExecution stepExecution) {
+        assertThat(stepExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+        assertThat(stepExecution.getWriteCount()).isEqualTo(TEST_STUDENTS.size() - 1L); // 세뇌 성공자 4명
+        assertThat(stepExecution.getFilterCount()).isEqualTo(1L); // 세뇌 저항자 1명
+    }
+
+    private void verifyExecutionContextPromotion(JobExecution jobExecution) {
+        Long brainwashedVictimCount = ExecutionContextTestUtils.getValueFromJob(jobExecution, "brainwashedVictimCount");
+        Long brainwashResistanceCount = ExecutionContextTestUtils.getValueFromJob(jobExecution, "brainwashResistanceCount");
+
+        assertThat(brainwashedVictimCount).isEqualTo(TEST_STUDENTS.size() - 1);
+        assertThat(brainwashResistanceCount).isEqualTo(1L);
+    }
+
+    private void verifyFileOutput(Path actualPath) throws IOException {
+        Path expectedFile = Paths.get("src/test/resources/expected_brainwashed_victims.jsonl");
+        Path actualFile = actualPath.resolve("brainwashed_victims.jsonl");
+
+        List<String> expectedLines = Files.readAllLines(expectedFile);
+        List<String> actualLines = Files.readAllLines(actualFile);
+
+        Assertions.assertLinesMatch(expectedLines, actualLines);
+    }
+
+    @Test
+    @DisplayName("Step Unit another Step")
+    void shouldExecuteStatisticsStepAndCalculateSuccessRate() throws Exception {
+        // Given
+        ExecutionContext jobExecutionContext = new ExecutionContext();
+        jobExecutionContext.putLong("brainwashedVictimCount", TEST_STUDENTS.size() - 1);
+        jobExecutionContext.putLong("brainwashResistanceCount", 1L);
+
+
+        // When
+        JobExecution stepJobExecution =
+                jobLauncherTestUtils.launchStep("brainwashStatisticsStep", jobExecutionContext);
+
+
+        // Then
+        Collection<StepExecution> stepExecutions = stepJobExecution.getStepExecutions();
+        StepExecution stepExecution = stepExecutions.iterator().next();
+
+        assertThat(stepExecution.getStatus()).isEqualTo(BatchStatus.COMPLETED);
+
+        Double brainwashSuccessRate = ExecutionContextTestUtils.getValueFromStep(stepExecution, "brainwashSuccessRate");
+        assertThat(brainwashSuccessRate).isEqualTo(80.0);
     }
 }
