@@ -41,7 +41,7 @@ class InFearLearnStudentsBrainWashJobTest {
 
     @Autowired
     private FlatFileItemWriter<BrainwashedVictim> brainwashedVictimWriter;
-    private Path writeTestDir;
+    //private Path writeTestDir;
 
     @Autowired
     private JobLauncherTestUtils jobLauncherTestUtils;
@@ -226,32 +226,54 @@ class InFearLearnStudentsBrainWashJobTest {
         assertThat(brainwashSuccessRate).isEqualTo(80.0);
     }
 
-    /*
-    * 자동 탐지 및 구성 대상
-    * */
-    public StepExecution getStepExecution() throws IOException {
-        writeTestDir = Files.createTempDirectory("write-test");
-
-        JobParameters jobParameters = new JobParametersBuilder()
-                .addString("filePath", writeTestDir.toString())
-                .addLong("random", new SecureRandom().nextLong())
-                .toJobParameters();
-
-        return MetaDataInstanceFactory.createStepExecution(jobParameters);
-    }
+//    /*
+//    * 자동 탐지 및 구성 대상
+//    * */
+//    public StepExecution getStepExecution() throws IOException {
+//        writeTestDir = Files.createTempDirectory("write-test");
+//
+//        JobParameters jobParameters = new JobParametersBuilder()
+//                .addString("filePath", writeTestDir.toString())
+//                .addLong("random", new SecureRandom().nextLong())
+//                .toJobParameters();
+//
+//        return MetaDataInstanceFactory.createStepExecution(jobParameters);
+//    }
 
     @Test
     @DisplayName("item writer component unit test")
     void shouldWriteBrainwashedVictimsToFileCorrectly() throws Exception {
+
         // Given
         List<BrainwashedVictim> brainwashedVictims = createBrainwashedVictims();
 
+        JobParameters jobParameters = new JobParametersBuilder()
+                .addString("filePath", tempDir.toString()) // 이제 @TempDir 사용 가능
+                .addLong("random", new SecureRandom().nextLong())
+                .toJobParameters();
+        StepExecution stepExecution = MetaDataInstanceFactory.createStepExecution(jobParameters);
+
+
         // When
-        brainwashedVictimWriter.open(new ExecutionContext());
-        brainwashedVictimWriter.write(new Chunk<>(brainwashedVictims));
-        brainwashedVictimWriter.close();
+        // StepScopeTestUtils 활용
+        StepScopeTestUtils.doInStepScope(stepExecution, () -> {
+            brainwashedVictimWriter.open(new ExecutionContext());
+            brainwashedVictimWriter.write(new Chunk<>(brainwashedVictims));
+            brainwashedVictimWriter.close();
+            return null;
+        });
 
         // Then
-        verifyFileOutput(writeTestDir);
+        verifyFileOutput();
+    }
+
+    private void verifyFileOutput() throws IOException {
+        Path expectedFile = Paths.get("src/test/resources/expected_brainwashed_victims.jsonl");
+        Path actualFile = tempDir.resolve("brainwashed_victims.jsonl");
+
+        List<String> expectedLines = Files.readAllLines(expectedFile);
+        List<String> actualLines = Files.readAllLines(actualFile);
+
+        Assertions.assertLinesMatch(expectedLines, actualLines);
     }
 }
